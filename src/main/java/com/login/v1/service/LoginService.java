@@ -12,13 +12,27 @@ import java.util.Date;
 import org.bouncycastle.asn1.pkcs.PrivateKeyInfo;
 import org.bouncycastle.openssl.PEMParser;
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.http.HttpEntity;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
+
+import com.login.v1.dto.AppleToken;
+import com.login.v1.dto.AppleToken.Request;
+import com.login.v1.dto.AppleToken.Response;
 
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 public class LoginService {
 
@@ -30,6 +44,9 @@ public class LoginService {
 
 	@Value("${apple.key.id}")
 	private String appleKeyId;
+	
+	@Autowired
+	private RestTemplate restTemplate;
 
 	public String makeClientSecret() throws Exception {
 		Date expirationDate = Date.from(LocalDateTime.now().plusDays(30).atZone(ZoneId.systemDefault()).toInstant());
@@ -54,5 +71,23 @@ public class LoginService {
 		JcaPEMKeyConverter converter = new JcaPEMKeyConverter();
 		PrivateKeyInfo object = (PrivateKeyInfo) pemParser.readObject();
 		return converter.getPrivateKey(object);
+	}
+	
+	public void authToken() throws Exception {
+		Request request = Request.builder()
+				.client_id(appleClientId)
+				.client_secret(this.makeClientSecret())
+				.grant_type("authorization_code")
+				.build();
+		
+		HttpHeaders headers = new HttpHeaders();
+		headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+		
+		HttpEntity<Request> body = new HttpEntity<AppleToken.Request>(request, headers);
+		String url = "https://appleid.apple.com/auth/token";
+		
+		ResponseEntity<Response> response = restTemplate.exchange(url, HttpMethod.POST, body, new ParameterizedTypeReference<Response>() {});
+		log.info("---- response : " +response.getStatusCodeValue());
+		log.info("---- response : " +response.getBody());
 	}
 }

@@ -12,8 +12,13 @@ public class LoginServiceTest {
 	private LoginService loginService;
 	
 	@Test
-	void test() throws Exception {
+	void makeClientSecretTest() throws Exception {
 		System.out.println(loginService.makeClientSecret());
+	}
+	
+	@Test
+	void authTokenTest() throws Exception {
+		loginService.authToken();
 	}
 	
 	@Nested
