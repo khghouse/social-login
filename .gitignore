@@ -40,3 +40,6 @@ out/
 *.properties
 
 *.p8
+
+### custom ###
+/src/main/resources/application-login-client.yml

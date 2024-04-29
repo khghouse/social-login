@@ -1,6 +1,7 @@
 spring:
   profiles:
     active: local # default로 사용될 프로파일 명시
+    include: login-client # 분리되어 있는 yml 포함
 
   datasource:
     url: jdbc:h2:mem:security
@@ -11,6 +12,14 @@ spring:
   jpa:
     hibernate:
       ddl-auto: none
+
+login:
+  naver:
+    url:
+      login: https://nid.naver.com/oauth2.0/authorize
+      authentication: https://nid.naver.com/oauth2.0/token
+      callback: http://localhost:8080/auth/login/naver
+      profile: https://openapi.naver.com/v1/nid/me
 
 --- # 프로파일을 구분
 
