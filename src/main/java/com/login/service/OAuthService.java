@@ -20,7 +20,7 @@ public class OAuthService {
 
         // 가입 정보가 없다면
         if (optionalMember.isEmpty()) {
-            // 고유 식별 값만 리턴
+            // 고유 식별 값만 리턴 -> 클라이언트에서 회원 가입 프로세스 진행
             return OAuthLoginResponse.of(id);
         }
 
