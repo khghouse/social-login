@@ -1,0 +1,9 @@
+
+### SNS 회원 가입
+POST localhost:8080/auth/signup
+Content-Type: application/json
+
+{
+  "socialId": "OYDzaHNcmh1cRcto928SY9Krb5aF0NiLX8iOADxpVRo",
+  "email": "khghouse@naver.com"
+}

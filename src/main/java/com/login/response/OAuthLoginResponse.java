@@ -11,12 +11,14 @@ import lombok.Getter;
 public class OAuthLoginResponse {
 
     private final Long memberId;
-    private final String socialId;
     private final String accessToken;
+    private final String socialId;
+    private final String email;
 
-    public static OAuthLoginResponse of(String socialId) {
+    public static OAuthLoginResponse of(String socialId, String email) {
         return OAuthLoginResponse.builder()
                 .socialId(socialId)
+                .email(email)
                 .build();
     }
 

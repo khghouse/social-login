@@ -1,4 +1,4 @@
-package com.login.api;
+package com.login.controller;
 
 import com.login.component.NaverLogin;
 import lombok.RequiredArgsConstructor;
