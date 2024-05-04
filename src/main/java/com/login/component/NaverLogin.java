@@ -103,4 +103,39 @@ public class NaverLogin {
         return naverProfileResponse;
     }
 
+    /**
+     * 네이버 로그인 액세스 토큰 삭제
+     */
+    public NaverLoginToken delete(String accessToken) {
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(authenticationUrl)
+                .queryParam("grant_type", "delete")
+                .queryParam("client_id", clientId)
+                .queryParam("client_secret", clientSecret)
+                .queryParam("access_token", accessToken)
+                .queryParam("service_provider", "NAVER")
+                .build();
+
+        WebClient webClient = WebClient.builder()
+                .baseUrl(uriComponents.toUriString())
+                .build();
+
+        // 네이버 로그인 액세스 토큰 삭제 API 호출
+        NaverLoginToken naverLoginToken = webClient.get()
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(NaverLoginToken.class);
+                    } else {
+                        throw new RuntimeException("액세스 토큰 삭제에 실패했습니다.");
+                    }
+                })
+                .block();
+
+        // 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
+        if (naverLoginToken.getError() != null) {
+            throw new RuntimeException(String.format("[%s] %s", naverLoginToken.getError(), naverLoginToken.getError_description()));
+        }
+
+        return naverLoginToken;
+    }
+
 }

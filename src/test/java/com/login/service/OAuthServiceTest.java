@@ -32,24 +32,26 @@ class OAuthServiceTest extends IntegrationTestSupport {
         memberRepository.save(member);
 
         // when
-        OAuthLoginResponse result = oAuthService.login("naver12345");
+        OAuthLoginResponse result = oAuthService.login("naver12345", "khghouse@naver.com");
 
         // then
         assertThat(result.getMemberId()).isEqualTo(member.getId());
         assertThat(result.getAccessToken()).isEqualTo("accessToken");
         assertThat(result.getSocialId()).isNull();
+        assertThat(result.getEmail()).isNull();
     }
 
     @Test
     @DisplayName("미가입한 회원이 로그인을 시도하면 소셜 ID를 응답한다.")
     void loginNotExistMember() {
         // when
-        OAuthLoginResponse result = oAuthService.login("naver12345");
+        OAuthLoginResponse result = oAuthService.login("naver12345", "khghouse@naver.com");
 
         // then
         assertThat(result.getMemberId()).isNull();
         assertThat(result.getAccessToken()).isNull();
         assertThat(result.getSocialId()).isEqualTo("naver12345");
+        assertThat(result.getEmail()).isEqualTo("khghouse@naver.com");
     }
 
 }
