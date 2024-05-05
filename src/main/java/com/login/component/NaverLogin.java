@@ -2,6 +2,7 @@ package com.login.component;
 
 import com.login.response.NaverLoginToken;
 import com.login.response.NaverProfileResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
+@Slf4j
 @Component
 public class NaverLogin {
 
@@ -74,6 +76,9 @@ public class NaverLogin {
                 })
                 .block();
 
+        log.info("{}", naverLoginToken.getAccess_token());
+        log.info("{}", naverLoginToken.getRefresh_token());
+
         // 네이버 로그인 인증 API는 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
         if (naverLoginToken.getError() != null) {
             throw new RuntimeException(String.format("[%s] %s", naverLoginToken.getError(), naverLoginToken.getError_description()));
@@ -104,6 +109,43 @@ public class NaverLogin {
     }
 
     /**
+     * 네이버 로그인 인증 by refreshToken
+     */
+    public NaverLoginToken authentication(String refreshToken) {
+        UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(authenticationUrl)
+                .queryParam("grant_type", "refresh_token")
+                .queryParam("client_id", clientId)
+                .queryParam("client_secret", clientSecret)
+                .queryParam("refresh_token", refreshToken)
+                .build();
+
+        WebClient webClient = WebClient.builder()
+                .baseUrl(uriComponents.toUriString())
+                .build();
+
+        // 네이버 로그인 인증 API 호출
+        NaverLoginToken naverLoginToken = webClient.get()
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(NaverLoginToken.class);
+                    } else {
+                        throw new RuntimeException("로그인에 실패했습니다. 다시 로그인 해주세요.");
+                    }
+                })
+                .block();
+
+        log.info("{}", naverLoginToken.getAccess_token());
+        log.info("{}", naverLoginToken.getRefresh_token());
+
+        // 네이버 로그인 인증 API는 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
+        if (naverLoginToken.getError() != null) {
+            throw new RuntimeException(String.format("[%s] %s", naverLoginToken.getError(), naverLoginToken.getError_description()));
+        }
+
+        return naverLoginToken;
+    }
+
+    /**
      * 네이버 로그인 액세스 토큰 삭제
      */
     public NaverLoginToken delete(String accessToken) {
@@ -114,6 +156,8 @@ public class NaverLogin {
                 .queryParam("access_token", accessToken)
                 .queryParam("service_provider", "NAVER")
                 .build();
+
+        log.info("{}", uriComponents.toUriString());
 
         WebClient webClient = WebClient.builder()
                 .baseUrl(uriComponents.toUriString())
@@ -129,6 +173,11 @@ public class NaverLogin {
                     }
                 })
                 .block();
+
+        log.info("{}", naverLoginToken.getAccess_token());
+        log.info("{}", naverLoginToken.getRefresh_token());
+        log.info("{}", naverLoginToken.getError());
+        log.info("{}", naverLoginToken.getError_description());
 
         // 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
         if (naverLoginToken.getError() != null) {

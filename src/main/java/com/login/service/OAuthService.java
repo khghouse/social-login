@@ -14,14 +14,14 @@ public class OAuthService {
 
     private final MemberRepository memberRepository;
 
-    public OAuthLoginResponse login(String id, String email) {
+    public OAuthLoginResponse login(String id, String email, String refreshToken) {
         // 프로필 조회 -> 고유 식별 값 획득
         Optional<Member> optionalMember = memberRepository.findBySocialIdAndDeletedFalse(id);
 
         // 가입 정보가 없다면
         if (optionalMember.isEmpty()) {
             // 고유 식별 값만 리턴 -> 클라이언트에서 회원 가입 프로세스 진행
-            return OAuthLoginResponse.of(id, email);
+            return OAuthLoginResponse.of(id, email, refreshToken);
         }
 
         // 가입 회원이면 회원 ID, 액세스 토큰 리턴

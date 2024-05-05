@@ -21,7 +21,7 @@ public class AuthController {
      * SNS 회원 가입
      */
     @PostMapping("/signup")
-    public ResponseEntity signup(@RequestBody @Validated AuthRequest request) {
+    public ResponseEntity<?> signup(@RequestBody @Validated AuthRequest request) {
         authService.signup(request.toServiceRequest());
         return ResponseEntity.ok(null);
     }

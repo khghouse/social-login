@@ -4,7 +4,7 @@ spring:
     include: login-client # 분리되어 있는 yml 포함
 
   datasource:
-    url: jdbc:h2:mem:security
+    url: jdbc:h2:mem:social
     driver-class-name: org.h2.Driver
     username: sa
     password:

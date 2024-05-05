@@ -11,4 +11,6 @@ public interface MemberRepository extends JpaRepository<Member, Long> {
 
     Optional<Member> findBySocialIdAndDeletedFalse(String socialId);
 
+    Optional<Member> findByIdAndDeletedFalse(Long id);
+
 }

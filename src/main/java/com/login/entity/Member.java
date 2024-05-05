@@ -25,6 +25,13 @@ public class Member {
     @Column(length = 50)
     private String socialId;
 
+    @Column(length = 200)
+    private String refreshToken;
+
     private Boolean deleted;
+
+    public void withdrawal() {
+        this.deleted = true;
+    }
 
 }

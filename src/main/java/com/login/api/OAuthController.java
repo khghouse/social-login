@@ -32,7 +32,7 @@ public class OAuthController {
         NaverProfile naverProfile = naverLoginResponse.getResponse();
 
         // SNS 로그인
-        return ResponseEntity.ok(oAuthService.login(naverProfile.getId(), naverProfile.getEmail()));
+        return ResponseEntity.ok(oAuthService.login(naverProfile.getId(), naverProfile.getEmail(), naverLoginToken.getRefresh_token()));
     }
 
 }

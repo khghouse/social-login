@@ -14,11 +14,13 @@ public class OAuthLoginResponse {
     private final String accessToken;
     private final String socialId;
     private final String email;
+    private final String refreshToken;
 
-    public static OAuthLoginResponse of(String socialId, String email) {
+    public static OAuthLoginResponse of(String socialId, String email, String refreshToken) {
         return OAuthLoginResponse.builder()
                 .socialId(socialId)
                 .email(email)
+                .refreshToken(refreshToken)
                 .build();
     }
 
