@@ -61,51 +61,7 @@ public class NaverLogin {
                 .queryParam("state", state)
                 .build();
 
-        WebClient webClient = WebClient.builder()
-                .baseUrl(uriComponents.toUriString())
-                .build();
-
-        // 네이버 로그인 인증 API 호출
-        NaverLoginToken naverLoginToken = webClient.get()
-                .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK)) {
-                        return response.bodyToMono(NaverLoginToken.class);
-                    } else {
-                        throw new RuntimeException("로그인에 실패했습니다. 다시 로그인 해주세요.");
-                    }
-                })
-                .block();
-
-        log.info("{}", naverLoginToken.getAccess_token());
-        log.info("{}", naverLoginToken.getRefresh_token());
-
-        // 네이버 로그인 인증 API는 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
-        if (naverLoginToken.getError() != null) {
-            throw new RuntimeException(String.format("[%s] %s", naverLoginToken.getError(), naverLoginToken.getError_description()));
-        }
-
-        return naverLoginToken;
-    }
-
-    /**
-     * 네이버 프로필 조회
-     */
-    public NaverProfileResponse getProfile(String accessToken, String tokenType) {
-        WebClient webClient = WebClient.builder()
-                .baseUrl(profileUrl)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken)
-                .build();
-
-        // 네이버 프로필 조회 API 호출
-        NaverProfileResponse naverProfileResponse = webClient.get()
-                .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK)) {
-                        return response.bodyToMono(NaverProfileResponse.class);
-                    }
-                    throw new RuntimeException(String.format("[%s] 로그인 할 수 없습니다.", response.statusCode()));
-                }).block();
-
-        return naverProfileResponse;
+        return authentication(uriComponents);
     }
 
     /**
@@ -119,36 +75,13 @@ public class NaverLogin {
                 .queryParam("refresh_token", refreshToken)
                 .build();
 
-        WebClient webClient = WebClient.builder()
-                .baseUrl(uriComponents.toUriString())
-                .build();
-
-        // 네이버 로그인 인증 API 호출
-        NaverLoginToken naverLoginToken = webClient.get()
-                .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK)) {
-                        return response.bodyToMono(NaverLoginToken.class);
-                    } else {
-                        throw new RuntimeException("로그인에 실패했습니다. 다시 로그인 해주세요.");
-                    }
-                })
-                .block();
-
-        log.info("{}", naverLoginToken.getAccess_token());
-        log.info("{}", naverLoginToken.getRefresh_token());
-
-        // 네이버 로그인 인증 API는 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
-        if (naverLoginToken.getError() != null) {
-            throw new RuntimeException(String.format("[%s] %s", naverLoginToken.getError(), naverLoginToken.getError_description()));
-        }
-
-        return naverLoginToken;
+        return authentication(uriComponents);
     }
 
     /**
      * 네이버 로그인 액세스 토큰 삭제
      */
-    public NaverLoginToken delete(String accessToken) {
+    public void delete(String accessToken) {
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(authenticationUrl)
                 .queryParam("grant_type", "delete")
                 .queryParam("client_id", clientId)
@@ -157,29 +90,45 @@ public class NaverLogin {
                 .queryParam("service_provider", "NAVER")
                 .build();
 
-        log.info("{}", uriComponents.toUriString());
+        authentication(uriComponents);
+    }
 
+    /**
+     * 네이버 프로필 조회
+     */
+    public NaverProfileResponse getProfile(String accessToken, String tokenType) {
+        WebClient webClient = WebClient.builder()
+                .baseUrl(profileUrl)
+                .defaultHeader(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken)
+                .build();
+
+        // 네이버 프로필 조회 API 호출
+        return webClient.get()
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(NaverProfileResponse.class);
+                    }
+                    throw new RuntimeException(String.format("[%s] 로그인 할 수 없습니다.", response.statusCode()));
+                }).block();
+    }
+
+    private static NaverLoginToken authentication(UriComponents uriComponents) {
         WebClient webClient = WebClient.builder()
                 .baseUrl(uriComponents.toUriString())
                 .build();
 
-        // 네이버 로그인 액세스 토큰 삭제 API 호출
+        // 네이버 로그인 API 호출
         NaverLoginToken naverLoginToken = webClient.get()
                 .exchangeToMono(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(NaverLoginToken.class);
                     } else {
-                        throw new RuntimeException("액세스 토큰 삭제에 실패했습니다.");
+                        throw new RuntimeException("정상 처리되지 못했습니다.");
                     }
                 })
                 .block();
 
-        log.info("{}", naverLoginToken.getAccess_token());
-        log.info("{}", naverLoginToken.getRefresh_token());
-        log.info("{}", naverLoginToken.getError());
-        log.info("{}", naverLoginToken.getError_description());
-
-        // 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
+        // 네이버 로그인 인증 API는 에러가 발생해도 200으로 응답 -> error, error_message 값이 존재하면 예외 처리 필요
         if (naverLoginToken.getError() != null) {
             throw new RuntimeException(String.format("[%s] %s", naverLoginToken.getError(), naverLoginToken.getError_description()));
         }

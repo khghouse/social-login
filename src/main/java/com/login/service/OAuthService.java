@@ -1,7 +1,11 @@
 package com.login.service;
 
+import com.login.component.NaverLogin;
 import com.login.entity.Member;
 import com.login.repository.MemberRepository;
+import com.login.response.NaverLoginToken;
+import com.login.response.NaverProfile;
+import com.login.response.NaverProfileResponse;
 import com.login.response.OAuthLoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -12,9 +16,28 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class OAuthService {
 
+    private final NaverLogin naverLogin;
     private final MemberRepository memberRepository;
 
-    public OAuthLoginResponse login(String id, String email, String refreshToken) {
+    /**
+     * 네이버 로그인
+     */
+    public Object loginNaver(String code, String state) {
+        // 네이버 로그인 인증
+        NaverLoginToken naverLoginToken = naverLogin.authentication(code, state);
+
+        // 네이버 프로필 조회
+        NaverProfileResponse naverLoginResponse = naverLogin.getProfile(naverLoginToken.getAccess_token(), naverLoginToken.getToken_type());
+        NaverProfile naverProfile = naverLoginResponse.getResponse();
+
+        // SNS 로그인
+        return login(naverProfile.getId(), naverProfile.getEmail(), naverLoginToken.getRefresh_token());
+    }
+
+    /**
+     * 로그인 처리
+     */
+    private OAuthLoginResponse login(String id, String email, String refreshToken) {
         // 프로필 조회 -> 고유 식별 값 획득
         Optional<Member> optionalMember = memberRepository.findBySocialIdAndDeletedFalse(id);
 
