@@ -61,7 +61,7 @@ public class NaverLogin {
                 .queryParam("state", state)
                 .build();
 
-        return authentication(uriComponents);
+        return naverAuthentication(uriComponents.toUriString());
     }
 
     /**
@@ -75,13 +75,13 @@ public class NaverLogin {
                 .queryParam("refresh_token", refreshToken)
                 .build();
 
-        return authentication(uriComponents);
+        return naverAuthentication(uriComponents.toUriString());
     }
 
     /**
      * 네이버 로그인 액세스 토큰 삭제
      */
-    public void delete(String accessToken) {
+    public void disconnect(String accessToken) {
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(authenticationUrl)
                 .queryParam("grant_type", "delete")
                 .queryParam("client_id", clientId)
@@ -90,13 +90,13 @@ public class NaverLogin {
                 .queryParam("service_provider", "NAVER")
                 .build();
 
-        authentication(uriComponents);
+        naverAuthentication(uriComponents.toUriString());
     }
 
     /**
-     * 네이버 프로필 조회
+     * 네이버 프로필 조회 API
      */
-    public NaverProfileResponse getProfile(String accessToken, String tokenType) {
+    public NaverProfileResponse naverProfile(String accessToken, String tokenType) {
         WebClient webClient = WebClient.builder()
                 .baseUrl(profileUrl)
                 .defaultHeader(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken)
@@ -108,13 +108,16 @@ public class NaverLogin {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(NaverProfileResponse.class);
                     }
-                    throw new RuntimeException(String.format("[%s] 로그인 할 수 없습니다.", response.statusCode()));
+                    throw new RuntimeException(String.format("[%s] 프로필을 조회할 수 없습니다.", response.statusCode()));
                 }).block();
     }
 
-    private static NaverLoginToken authentication(UriComponents uriComponents) {
+    /**
+     * 네이버 로그인 인증 API
+     */
+    private static NaverLoginToken naverAuthentication(String url) {
         WebClient webClient = WebClient.builder()
-                .baseUrl(uriComponents.toUriString())
+                .baseUrl(url)
                 .build();
 
         // 네이버 로그인 API 호출

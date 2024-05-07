@@ -9,11 +9,13 @@ import com.login.response.NaverProfileResponse;
 import com.login.response.OAuthLoginResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Transactional(readOnly = true)
 public class OAuthService {
 
     private final NaverLogin naverLogin;
@@ -22,12 +24,13 @@ public class OAuthService {
     /**
      * 네이버 로그인
      */
-    public Object loginNaver(String code, String state) {
+    @Transactional
+    public OAuthLoginResponse loginNaver(String code, String state) {
         // 네이버 로그인 인증
         NaverLoginToken naverLoginToken = naverLogin.authentication(code, state);
 
         // 네이버 프로필 조회
-        NaverProfileResponse naverLoginResponse = naverLogin.getProfile(naverLoginToken.getAccess_token(), naverLoginToken.getToken_type());
+        NaverProfileResponse naverLoginResponse = naverLogin.naverProfile(naverLoginToken.getAccess_token(), naverLoginToken.getToken_type());
         NaverProfile naverProfile = naverLoginResponse.getResponse();
 
         // SNS 로그인

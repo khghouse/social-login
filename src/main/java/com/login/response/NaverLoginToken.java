@@ -1,12 +1,11 @@
 package com.login.response;
 
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Getter
 @Setter
-@ToString
+@Builder
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class NaverLoginToken {
 
     private String access_token;

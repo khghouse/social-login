@@ -29,9 +29,9 @@ public class MemberService {
         NaverLoginToken naverLoginToken = naverLogin.authentication(member.getRefreshToken());
 
         // 네이버 연결 서비스 해제
-        naverLogin.delete(naverLoginToken.getAccess_token());
+        naverLogin.disconnect(naverLoginToken.getAccess_token());
 
-        // TODO :: 액세스 토큰 말료 처리
+        // TODO :: 액세스 토큰 만료 처리
     }
 
 }
