@@ -20,4 +20,9 @@ public class OAuthController {
         return ResponseEntity.ok(oAuthService.loginNaver(code, state));
     }
 
+    @GetMapping("/login/kakao/callback")
+    public ResponseEntity<?> loginKakao(@Param("code") String code, @Param("state") String state) {
+        return ResponseEntity.ok(null);
+    }
+
 }

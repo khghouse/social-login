@@ -20,6 +20,10 @@ login:
       authentication: https://nid.naver.com/oauth2.0/token
       callback: http://localhost:8080/auth/login/naver/callback
       profile: https://openapi.naver.com/v1/nid/me
+  kakao:
+    url:
+      login: https://kauth.kakao.com/oauth/authorize
+      callback: http://localhost:8080/auth/login/kakao/callback
 
 --- # 프로파일을 구분
 
