@@ -23,6 +23,7 @@ login:
   kakao:
     url:
       login: https://kauth.kakao.com/oauth/authorize
+      authentication: https://kauth.kakao.com/oauth/token
       callback: http://localhost:8080/auth/login/kakao/callback
 
 --- # 프로파일을 구분

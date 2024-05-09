@@ -1,12 +1,10 @@
 package com.login.service;
 
+import com.login.component.KakaoLogin;
 import com.login.component.NaverLogin;
 import com.login.entity.Member;
 import com.login.repository.MemberRepository;
-import com.login.response.NaverLoginToken;
-import com.login.response.NaverProfile;
-import com.login.response.NaverProfileResponse;
-import com.login.response.OAuthLoginResponse;
+import com.login.response.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -18,8 +16,9 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 public class OAuthService {
 
-    private final NaverLogin naverLogin;
     private final MemberRepository memberRepository;
+    private final NaverLogin naverLogin;
+    private final KakaoLogin kakaoLogin;
 
     /**
      * 네이버 로그인
@@ -35,6 +34,17 @@ public class OAuthService {
 
         // SNS 로그인
         return login(naverProfile.getId(), naverProfile.getEmail(), naverLoginToken.getRefresh_token());
+    }
+
+    /**
+     * 카카오 로그인
+     */
+    @Transactional
+    public OAuthLoginResponse loginKakao(String code, String state) {
+        // 카카오 로그인 인증
+        KakaoLoginToken kakaoLoginToken = kakaoLogin.authentication(code);
+
+        return null;
     }
 
     /**

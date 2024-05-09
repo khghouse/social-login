@@ -1,8 +1,8 @@
 package com.login.api;
 
+import com.login.response.LoginCallback;
 import com.login.service.OAuthService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.repository.query.Param;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -16,13 +16,18 @@ public class OAuthController {
     private final OAuthService oAuthService;
 
     @GetMapping("/login/naver/callback")
-    public ResponseEntity<?> loginNaver(@Param("code") String code, @Param("state") String state) {
-        return ResponseEntity.ok(oAuthService.loginNaver(code, state));
+    public ResponseEntity<?> loginNaver(LoginCallback request) {
+        return ResponseEntity.ok(oAuthService.loginNaver(request.getCode(), request.getState()));
     }
 
     @GetMapping("/login/kakao/callback")
-    public ResponseEntity<?> loginKakao(@Param("code") String code, @Param("state") String state) {
-        return ResponseEntity.ok(null);
+    public ResponseEntity<?> loginKakao(LoginCallback request) {
+        // callback uri 호출 오류
+        if (request.getError() != null) {
+            throw new RuntimeException(request.getError_description());
+        }
+
+        return ResponseEntity.ok(oAuthService.loginKakao(request.getCode(), request.getState()));
     }
 
 }
