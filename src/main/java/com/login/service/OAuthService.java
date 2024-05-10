@@ -40,11 +40,15 @@ public class OAuthService {
      * 카카오 로그인
      */
     @Transactional
-    public OAuthLoginResponse loginKakao(String code, String state) {
+    public OAuthLoginResponse loginKakao(String code) {
         // 카카오 로그인 인증
         KakaoLoginToken kakaoLoginToken = kakaoLogin.authentication(code);
 
-        return null;
+        // 카카오 프로필 조회
+        KakaoProfileResponse profile = kakaoLogin.profile(kakaoLoginToken.getAccess_token(), kakaoLoginToken.getToken_type());
+
+        // SNS 로그인
+        return login(profile.getId(), profile.getKakao_account().getEmail(), kakaoLoginToken.getRefresh_token());
     }
 
     /**

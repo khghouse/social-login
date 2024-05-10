@@ -25,6 +25,7 @@ login:
       login: https://kauth.kakao.com/oauth/authorize
       authentication: https://kauth.kakao.com/oauth/token
       callback: http://localhost:8080/auth/login/kakao/callback
+      profile: https://kapi.kakao.com/v2/user/me
 
 --- # 프로파일을 구분
 

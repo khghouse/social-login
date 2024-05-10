@@ -1,6 +1,7 @@
 package com.login.component;
 
 import com.login.response.KakaoLoginToken;
+import com.login.response.KakaoProfileResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
@@ -16,6 +17,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 @Component
 public class KakaoLogin {
 
+    private final String SPACE = " ";
     private final String GRANT_TYPE = "authorization_code";
 
     @Value("${login.kakao.client.id}")
@@ -32,6 +34,9 @@ public class KakaoLogin {
 
     @Value("${login.kakao.url.authentication}")
     private String authenticationUrl;
+
+    @Value("${login.kakao.url.profile}")
+    private String profileUrl;
 
     /**
      * 카카오 로그인 URL 생성
@@ -51,13 +56,10 @@ public class KakaoLogin {
      * 카카오 로그인 인증
      */
     public KakaoLoginToken authentication(String code) {
-
-        WebClient webClient = WebClient.builder()
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .baseUrl(authenticationUrl)
-                .build();
-
-        return webClient.post()
+        return WebClient.create()
+                .post()
+                .uri(authenticationUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
                 .body(BodyInserters.fromFormData("grant_type", GRANT_TYPE)
                         .with("client_id", clientId)
                         .with("redirect_uri", callbackUrl)
@@ -67,7 +69,26 @@ public class KakaoLogin {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(KakaoLoginToken.class);
                     } else {
-                        throw new RuntimeException("정상 처리되지 못했습니다.");
+                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    }
+                }).block();
+    }
+
+    /**
+     * 카카오 프로필 조회
+     */
+    public KakaoProfileResponse profile(String accessToken, String tokenType) {
+        return WebClient.create()
+                .get()
+                .uri(profileUrl)
+                .headers(headers -> {
+                    headers.add(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken);
+                    headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
+                }).exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(KakaoProfileResponse.class);
+                    } else {
+                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
                     }
                 }).block();
     }
