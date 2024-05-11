@@ -38,6 +38,9 @@ public class KakaoLogin {
     @Value("${login.kakao.url.profile}")
     private String profileUrl;
 
+    @Value("${login.kakao.url.disconnect}")
+    private String disconnectUrl;
+
     /**
      * 카카오 로그인 URL 생성
      */
@@ -68,6 +71,44 @@ public class KakaoLogin {
                 .exchangeToMono(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(KakaoLoginToken.class);
+                    } else {
+                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    }
+                }).block();
+    }
+
+    /**
+     * 카카오 로그인 인증 by refreshToken
+     */
+    public KakaoLoginToken authenticationByRefreshToken(String refreshToken) {
+        return WebClient.create()
+                .post()
+                .uri(authenticationUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData("grant_type", "refresh_token")
+                        .with("client_id", clientId)
+                        .with("refresh_token", refreshToken)
+                        .with("client_secret", clientSecret))
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(KakaoLoginToken.class);
+                    } else {
+                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    }
+                }).block();
+    }
+
+    /**
+     * 카카오 로그인 연결 해제
+     */
+    public void disconnect(String accessToken, String tokenType) {
+        WebClient.create()
+                .post()
+                .uri(disconnectUrl)
+                .header(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken)
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(Long.class);
                     } else {
                         throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
                     }
