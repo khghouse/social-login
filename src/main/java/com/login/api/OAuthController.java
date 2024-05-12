@@ -27,7 +27,7 @@ public class OAuthController {
             throw new RuntimeException(request.getError_description());
         }
 
-        return ResponseEntity.ok(oAuthService.loginKakao(request.getCode()));
+        return ResponseEntity.ok(oAuthService.loginKakao(request.getCode(), request.getState()));
     }
 
 }

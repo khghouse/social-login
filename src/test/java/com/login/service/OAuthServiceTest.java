@@ -47,7 +47,7 @@ class OAuthServiceTest extends IntegrationTestSupport {
                 .email("khghouse@naver.com")
                 .build();
 
-        BDDMockito.given(naverLogin.naverProfile(anyString(), anyString()))
+        BDDMockito.given(naverLogin.profile(anyString()))
                 .willReturn(NaverProfileResponse.builder()
                         .resultcode("00")
                         .message("success")
@@ -90,7 +90,7 @@ class OAuthServiceTest extends IntegrationTestSupport {
                 .email("khghouse@naver.com")
                 .build();
 
-        BDDMockito.given(naverLogin.naverProfile(anyString(), anyString()))
+        BDDMockito.given(naverLogin.profile(anyString()))
                 .willReturn(NaverProfileResponse.builder()
                         .resultcode("00")
                         .message("success")

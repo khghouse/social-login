@@ -18,8 +18,8 @@ public class LoginController {
 
     @GetMapping("/login")
     public String login(Model model) {
-        model.addAttribute("naverLoginUrl", naverLogin.generateLoginUrl());
-        model.addAttribute("kakaoLoginUrl", kakaoLogin.generateLoginUrl());
+        model.addAttribute("naverLoginUrl", naverLogin.loginUrl());
+        model.addAttribute("kakaoLoginUrl", kakaoLogin.loginUrl());
         return "login";
     }
 

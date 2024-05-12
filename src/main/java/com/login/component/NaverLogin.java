@@ -13,9 +13,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
-public class NaverLogin {
-
-    private final String SPACE = " ";
+public class NaverLogin implements LoginStrategy<NaverLoginToken, NaverProfileResponse> {
 
     @Value("${login.naver.client.id}")
     private String clientId;
@@ -38,7 +36,7 @@ public class NaverLogin {
     /**
      * 네이버 로그인 URL 생성
      */
-    public String generateLoginUrl() {
+    public String loginUrl() {
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(loginUrl)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", clientId)
@@ -96,14 +94,12 @@ public class NaverLogin {
     /**
      * 네이버 프로필 조회 API
      */
-    public NaverProfileResponse naverProfile(String accessToken, String tokenType) {
-        WebClient webClient = WebClient.builder()
-                .baseUrl(profileUrl)
-                .defaultHeader(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken)
-                .build();
-
+    public NaverProfileResponse profile(String accessToken) {
         // 네이버 프로필 조회 API 호출
-        return webClient.get()
+        return WebClient.create()
+                .get()
+                .uri(profileUrl)
+                .header(HttpHeaders.AUTHORIZATION, TOKEN_TYPE_BEARER + accessToken)
                 .exchangeToMono(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(NaverProfileResponse.class);
@@ -116,12 +112,10 @@ public class NaverLogin {
      * 네이버 로그인 인증 API
      */
     private static NaverLoginToken naverAuthentication(String url) {
-        WebClient webClient = WebClient.builder()
-                .baseUrl(url)
-                .build();
-
         // 네이버 로그인 API 호출
-        NaverLoginToken naverLoginToken = webClient.get()
+        NaverLoginToken naverLoginToken = WebClient.create()
+                .get()
+                .uri(url)
                 .exchangeToMono(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(NaverLoginToken.class);

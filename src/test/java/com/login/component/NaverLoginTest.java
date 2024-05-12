@@ -40,7 +40,7 @@ class NaverLoginTest extends IntegrationTestSupport {
     @DisplayName("네이버 프로필 조회 시, 액세스 토큰이 유효하지 않으면 예외가 발생한다.")
     void getProfileInvalidAccessToken() {
         // when, then
-        assertThatThrownBy(() -> naverLogin.naverProfile(null, "bearer"))
+        assertThatThrownBy(() -> naverLogin.profile(null))
                 .isInstanceOf(RuntimeException.class);
     }
 
@@ -48,7 +48,7 @@ class NaverLoginTest extends IntegrationTestSupport {
     @DisplayName("네이버 프로필 조회 시, 토큰 타입이 유효하지 않으면 예외가 발생한다.")
     void getProfileInvalidTokenType() {
         // when, then
-        assertThatThrownBy(() -> naverLogin.naverProfile("AAAAOBEqex0W37RwtoU7pimWVu7Uk4fB9ipLNlaPYqMjnGFxL9ZHzPqp1UBdNiXAXb7d5N_cQlNEch-cjg_2GI4KrJs", "basic"))
+        assertThatThrownBy(() -> naverLogin.profile("AAAAOBEqex0W37RwtoU7pimWVu7Uk4fB9ipLNlaPYqMjnGFxL9ZHzPqp1UBdNiXAXb7d5N_cQlNEch-cjg_2GI4KrJs"))
                 .isInstanceOf(RuntimeException.class);
     }
 

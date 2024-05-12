@@ -29,7 +29,7 @@ public class OAuthService {
         NaverLoginToken naverLoginToken = naverLogin.authentication(code, state);
 
         // 네이버 프로필 조회
-        NaverProfileResponse naverLoginResponse = naverLogin.naverProfile(naverLoginToken.getAccess_token(), naverLoginToken.getToken_type());
+        NaverProfileResponse naverLoginResponse = naverLogin.profile(naverLoginToken.getAccess_token());
         NaverProfile naverProfile = naverLoginResponse.getResponse();
 
         // SNS 로그인
@@ -40,12 +40,12 @@ public class OAuthService {
      * 카카오 로그인
      */
     @Transactional
-    public OAuthLoginResponse loginKakao(String code) {
+    public OAuthLoginResponse loginKakao(String code, String state) {
         // 카카오 로그인 인증
-        KakaoLoginToken kakaoLoginToken = kakaoLogin.authentication(code);
+        KakaoLoginToken kakaoLoginToken = kakaoLogin.authentication(code, state);
 
         // 카카오 프로필 조회
-        KakaoProfileResponse profile = kakaoLogin.profile(kakaoLoginToken.getAccess_token(), kakaoLoginToken.getToken_type());
+        KakaoProfileResponse profile = kakaoLogin.profile(kakaoLoginToken.getAccess_token());
 
         // SNS 로그인
         return login(profile.getId(), profile.getKakao_account().getEmail(), kakaoLoginToken.getRefresh_token());

@@ -15,10 +15,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Slf4j
 @Component
-public class KakaoLogin {
-
-    private final String SPACE = " ";
-    private final String GRANT_TYPE = "authorization_code";
+public class KakaoLogin implements LoginStrategy<KakaoLoginToken, KakaoProfileResponse> {
 
     @Value("${login.kakao.client.id}")
     private String clientId;
@@ -44,7 +41,7 @@ public class KakaoLogin {
     /**
      * 카카오 로그인 URL 생성
      */
-    public Object generateLoginUrl() {
+    public String loginUrl() {
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(loginUrl)
                 .queryParam("response_type", "code")
                 .queryParam("client_id", clientId)
@@ -58,7 +55,8 @@ public class KakaoLogin {
     /**
      * 카카오 로그인 인증
      */
-    public KakaoLoginToken authentication(String code) {
+    public KakaoLoginToken authentication(String code, String state) {
+        String GRANT_TYPE = "authorization_code";
         return WebClient.create()
                 .post()
                 .uri(authenticationUrl)
@@ -80,7 +78,7 @@ public class KakaoLogin {
     /**
      * 카카오 로그인 인증 by refreshToken
      */
-    public KakaoLoginToken authenticationByRefreshToken(String refreshToken) {
+    public KakaoLoginToken authentication(String refreshToken) {
         return WebClient.create()
                 .post()
                 .uri(authenticationUrl)
@@ -101,11 +99,11 @@ public class KakaoLogin {
     /**
      * 카카오 로그인 연결 해제
      */
-    public void disconnect(String accessToken, String tokenType) {
+    public void disconnect(String accessToken) {
         WebClient.create()
                 .post()
                 .uri(disconnectUrl)
-                .header(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, TOKEN_TYPE_BEARER + accessToken)
                 .exchangeToMono(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
                         return response.bodyToMono(Long.class);
@@ -118,12 +116,12 @@ public class KakaoLogin {
     /**
      * 카카오 프로필 조회
      */
-    public KakaoProfileResponse profile(String accessToken, String tokenType) {
+    public KakaoProfileResponse profile(String accessToken) {
         return WebClient.create()
                 .get()
                 .uri(profileUrl)
                 .headers(headers -> {
-                    headers.add(HttpHeaders.AUTHORIZATION, tokenType + SPACE + accessToken);
+                    headers.add(HttpHeaders.AUTHORIZATION, TOKEN_TYPE_BEARER + accessToken);
                     headers.add(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE);
                 }).exchangeToMono(response -> {
                     if (response.statusCode().equals(HttpStatus.OK)) {
