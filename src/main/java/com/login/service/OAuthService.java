@@ -3,6 +3,7 @@ package com.login.service;
 import com.login.component.KakaoLogin;
 import com.login.component.NaverLogin;
 import com.login.entity.Member;
+import com.login.enumeration.LoginType;
 import com.login.repository.MemberRepository;
 import com.login.response.*;
 import lombok.RequiredArgsConstructor;
@@ -33,7 +34,7 @@ public class OAuthService {
         NaverProfile naverProfile = naverLoginResponse.getResponse();
 
         // SNS 로그인
-        return login(naverProfile.getId(), naverProfile.getEmail(), naverLoginToken.getRefresh_token());
+        return login(naverProfile.getId(), naverProfile.getEmail(), naverLoginToken.getRefresh_token(), naverLoginToken.getLoginType());
     }
 
     /**
@@ -48,20 +49,20 @@ public class OAuthService {
         KakaoProfileResponse profile = kakaoLogin.profile(kakaoLoginToken.getAccess_token());
 
         // SNS 로그인
-        return login(profile.getId(), profile.getKakao_account().getEmail(), kakaoLoginToken.getRefresh_token());
+        return login(profile.getId(), profile.getKakao_account().getEmail(), kakaoLoginToken.getRefresh_token(), kakaoLoginToken.getLoginType());
     }
 
     /**
      * 로그인 처리
      */
-    private OAuthLoginResponse login(String id, String email, String refreshToken) {
+    private OAuthLoginResponse login(String id, String email, String refreshToken, LoginType loginType) {
         // 프로필 조회 -> 고유 식별 값 획득
         Optional<Member> optionalMember = memberRepository.findBySocialIdAndDeletedFalse(id);
 
         // 가입 정보가 없다면
         if (optionalMember.isEmpty()) {
             // 고유 식별 값만 리턴 -> 클라이언트에서 회원 가입 프로세스 진행
-            return OAuthLoginResponse.of(id, email, refreshToken);
+            return OAuthLoginResponse.of(id, email, refreshToken, loginType.getId());
         }
 
         // 가입 회원이면 회원 ID, 액세스 토큰 리턴

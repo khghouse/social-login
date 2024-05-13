@@ -15,12 +15,14 @@ public class OAuthLoginResponse {
     private final String socialId;
     private final String email;
     private final String refreshToken;
+    private final Short type;
 
-    public static OAuthLoginResponse of(String socialId, String email, String refreshToken) {
+    public static OAuthLoginResponse of(String socialId, String email, String refreshToken, Short type) {
         return OAuthLoginResponse.builder()
                 .socialId(socialId)
                 .email(email)
                 .refreshToken(refreshToken)
+                .type(type)
                 .build();
     }
 
