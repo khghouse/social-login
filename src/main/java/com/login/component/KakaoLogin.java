@@ -1,5 +1,6 @@
 package com.login.component;
 
+import com.login.enumeration.LoginType;
 import com.login.response.KakaoLoginToken;
 import com.login.response.KakaoProfileResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +13,7 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
@@ -37,6 +39,11 @@ public class KakaoLogin implements LoginStrategy<KakaoLoginToken, KakaoProfileRe
 
     @Value("${login.kakao.url.disconnect}")
     private String disconnectUrl;
+
+    @Override
+    public LoginType getLoginType() {
+        return LoginType.KAKAO;
+    }
 
     /**
      * 카카오 로그인 URL 생성
@@ -99,18 +106,19 @@ public class KakaoLogin implements LoginStrategy<KakaoLoginToken, KakaoProfileRe
     /**
      * 카카오 로그인 연결 해제
      */
-    public void disconnect(String accessToken) {
+    public void disconnect(String refreshToken) {
+        KakaoLoginToken kakaoLoginToken = authentication(refreshToken);
+
         WebClient.create()
                 .post()
                 .uri(disconnectUrl)
-                .header(HttpHeaders.AUTHORIZATION, TOKEN_TYPE_BEARER + accessToken)
+                .header(HttpHeaders.AUTHORIZATION, TOKEN_TYPE_BEARER + kakaoLoginToken.getAccess_token())
                 .exchangeToMono(response -> {
-                    if (response.statusCode().equals(HttpStatus.OK)) {
-                        return response.bodyToMono(Long.class);
-                    } else {
-                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    if (!response.statusCode().equals(HttpStatus.OK)) {
+                        log.error(String.format("[카카오 로그인 연결 해제][%s] 정상 처리되지 못했습니다.", response.statusCode()));
                     }
-                }).block();
+                    return Mono.just(response);
+                }).subscribe();
     }
 
     /**

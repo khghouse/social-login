@@ -34,4 +34,8 @@ public class Member {
         this.deleted = true;
     }
 
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
+    
 }

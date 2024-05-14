@@ -1,9 +1,10 @@
 package com.login.service;
 
-import com.login.component.NaverLogin;
+import com.login.component.LoginStrategy;
+import com.login.component.LoginStrategyFactory;
 import com.login.entity.Member;
+import com.login.enumeration.LoginType;
 import com.login.repository.MemberRepository;
-import com.login.response.NaverLoginToken;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,7 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class MemberService {
 
     private final MemberRepository memberRepository;
-    private final NaverLogin naverLogin;
+    private final LoginStrategyFactory loginStrategyFactory;
 
     @Transactional
     public void withdrawal(Long id) {
@@ -25,13 +26,12 @@ public class MemberService {
         // 회원 탈퇴 처리
         member.withdrawal();
 
-        // 네이버 연결 서비스 해제를 위한 네이버 로그인 인증 by refreshToken
-        NaverLoginToken naverLoginToken = naverLogin.authentication(member.getRefreshToken());
+        // 소셜 로그인 서비스 연결 해제
+        LoginType loginType = LoginType.of(member.getType());
+        LoginStrategy loginStrategy = loginStrategyFactory.getStrategy(loginType);
+        loginStrategy.disconnect(member.getRefreshToken()); // TODO :: 소셜 로그인 후 응답 받은 리프레쉬 토큰을 DB 또는 Redis에서 조회
 
-        // 네이버 연결 서비스 해제
-        naverLogin.disconnect(naverLoginToken.getAccess_token());
-
-        // TODO :: 액세스 토큰 만료 처리
+        // TODO :: 서비스 액세스 토큰 만료 처리
     }
 
 }

@@ -1,5 +1,6 @@
 package com.login.component;
 
+import com.login.enumeration.LoginType;
 import com.login.response.NaverLoginToken;
 import com.login.response.NaverProfileResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +33,11 @@ public class NaverLogin implements LoginStrategy<NaverLoginToken, NaverProfileRe
 
     @Value("${login.naver.url.profile}")
     private String profileUrl;
+
+    @Override
+    public LoginType getLoginType() {
+        return LoginType.NAVER;
+    }
 
     /**
      * 네이버 로그인 URL 생성
@@ -79,12 +85,14 @@ public class NaverLogin implements LoginStrategy<NaverLoginToken, NaverProfileRe
     /**
      * 네이버 로그인 액세스 토큰 삭제
      */
-    public void disconnect(String accessToken) {
+    public void disconnect(String refreshToken) {
+        NaverLoginToken naverLoginToken = authentication(refreshToken);
+
         UriComponents uriComponents = UriComponentsBuilder.fromHttpUrl(authenticationUrl)
                 .queryParam("grant_type", "delete")
                 .queryParam("client_id", clientId)
                 .queryParam("client_secret", clientSecret)
-                .queryParam("access_token", accessToken)
+                .queryParam("access_token", naverLoginToken.getAccess_token())
                 .queryParam("service_provider", "NAVER")
                 .build();
 

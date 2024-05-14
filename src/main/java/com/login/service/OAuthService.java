@@ -65,8 +65,12 @@ public class OAuthService {
             return OAuthLoginResponse.of(id, email, refreshToken, loginType.getId());
         }
 
-        // 가입 회원이면 회원 ID, 액세스 토큰 리턴
-        return OAuthLoginResponse.of(optionalMember.get().getId(), "accessToken"); // TODO :: 인증 전략에 맞는 액세스 토큰 구현
+        // 가입 회원이면 리프레쉬 토큰 갱신
+        Member member = optionalMember.get();
+        member.setRefreshToken(refreshToken);
+
+        // 회원 ID, 액세스 토큰 리턴
+        return OAuthLoginResponse.of(member.getId(), "accessToken"); // TODO :: 인증 전략에 맞는 액세스 토큰 구현
     }
 
 }
