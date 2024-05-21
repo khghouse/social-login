@@ -27,6 +27,11 @@ login:
       callback: http://localhost:8080/auth/login/kakao/callback
       profile: https://kapi.kakao.com/v2/user/me
       disconnect: https://kapi.kakao.com/v1/user/unlink
+  google:
+    url:
+      login: https://accounts.google.com/o/oauth2/v2/auth
+      callback: http://localhost:8080/auth/login/google/callback
+      scope: https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile
 
 --- # 프로파일을 구분
 

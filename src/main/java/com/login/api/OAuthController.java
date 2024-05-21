@@ -30,4 +30,9 @@ public class OAuthController {
         return ResponseEntity.ok(oAuthService.loginKakao(request.getCode(), request.getState()));
     }
 
+    @GetMapping("/login/google/callback")
+    public ResponseEntity<?> loginGoogle() {
+        return ResponseEntity.ok(null);
+    }
+
 }
