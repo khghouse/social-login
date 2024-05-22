@@ -14,7 +14,8 @@ public enum LoginType {
 
     EMAIL((short) 1, "이메일 로그인"),
     NAVER((short) 2, "네이버 로그인"),
-    KAKAO((short) 3, "카카오 로그인");
+    KAKAO((short) 3, "카카오 로그인"),
+    GOOGLE((short) 4, "구글 로그인");
 
     private final Short id;
     private final String name;

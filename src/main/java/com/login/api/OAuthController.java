@@ -31,7 +31,7 @@ public class OAuthController {
     }
 
     @GetMapping("/login/google/callback")
-    public ResponseEntity<?> loginGoogle() {
+    public ResponseEntity<?> loginGoogle(LoginCallback request) {
         return ResponseEntity.ok(null);
     }
 
