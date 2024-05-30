@@ -30,8 +30,8 @@ login:
   google:
     url:
       login: https://accounts.google.com/o/oauth2/v2/auth
+      authentication: https://oauth2.googleapis.com/token
       callback: http://localhost:8080/auth/login/google/callback
-#      scope: https://www.googleapis.com/auth/userinfo.email https://www.googleapis.com/auth/userinfo.profile
       scope: https://www.googleapis.com/auth/userinfo.email
 
 --- # 프로파일을 구분
