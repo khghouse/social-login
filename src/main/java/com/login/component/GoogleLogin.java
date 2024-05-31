@@ -2,6 +2,7 @@ package com.login.component;
 
 import com.login.enumeration.LoginType;
 import com.login.response.GoogleLoginToken;
+import com.login.response.GoogleProfileResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,7 +14,7 @@ import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
 
 @Component
-public class GoogleLogin implements LoginStrategy<GoogleLoginToken, Object> {
+public class GoogleLogin implements LoginStrategy<GoogleLoginToken, GoogleProfileResponse> {
 
     @Value("${login.google.client.id}")
     private String clientId;
@@ -29,6 +30,9 @@ public class GoogleLogin implements LoginStrategy<GoogleLoginToken, Object> {
 
     @Value("${login.google.url.authentication}")
     private String authenticationUrl;
+
+    @Value("${login.google.url.profile}")
+    private String profileUrl;
 
     @Value("${login.google.url.scope}")
     private String scope;
@@ -89,8 +93,17 @@ public class GoogleLogin implements LoginStrategy<GoogleLoginToken, Object> {
     }
 
     @Override
-    public Object profile(String accessToken) {
-        return null;
+    public GoogleProfileResponse profile(String accessToken) {
+        return WebClient.create()
+                .get()
+                .uri(profileUrl + "?access_token=" + accessToken)
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(GoogleProfileResponse.class);
+                    } else {
+                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    }
+                }).block();
     }
 
 }

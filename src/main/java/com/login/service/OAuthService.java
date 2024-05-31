@@ -1,5 +1,6 @@
 package com.login.service;
 
+import com.login.component.GoogleLogin;
 import com.login.component.KakaoLogin;
 import com.login.component.NaverLogin;
 import com.login.entity.Member;
@@ -20,6 +21,7 @@ public class OAuthService {
     private final MemberRepository memberRepository;
     private final NaverLogin naverLogin;
     private final KakaoLogin kakaoLogin;
+    private final GoogleLogin googleLogin;
 
     /**
      * 네이버 로그인
@@ -50,6 +52,21 @@ public class OAuthService {
 
         // SNS 로그인
         return login(profile.getId(), profile.getKakao_account().getEmail(), kakaoLoginToken.getRefresh_token(), kakaoLoginToken.getLoginType());
+    }
+
+    /**
+     * 구글 로그인
+     */
+    @Transactional
+    public OAuthLoginResponse loginGoogle(String code, String state) {
+        // 구글 로그인 인증
+        GoogleLoginToken googleLoginToken = googleLogin.authentication(code, state);
+
+        // 구글 프로필 조회
+        GoogleProfileResponse googleProfileResponse = googleLogin.profile(googleLoginToken.getAccess_token());
+
+        // SNS 로그인
+        return login(googleProfileResponse.getId(), googleProfileResponse.getEmail(), googleLoginToken.getRefresh_token(), googleLoginToken.getLoginType());
     }
 
     /**

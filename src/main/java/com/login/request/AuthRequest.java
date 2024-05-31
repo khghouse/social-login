@@ -16,8 +16,8 @@ public class AuthRequest {
     private String socialId;
 
     @NotNull(message = "로그인 타입을 입력해 주세요.")
-    @Min(value = 1, message = "로그인 타입은 1,2,3 중 하나의 값입니다.")
-    @Max(value = 3, message = "로그인 타입은 1,2,3 중 하나의 값입니다.")
+    @Min(value = 1, message = "로그인 타입은 1,2,3,4 중 하나의 값입니다.")
+    @Max(value = 4, message = "로그인 타입은 1,2,3,4 중 하나의 값입니다.")
     private Short type;
 
     private String email;
