@@ -29,7 +29,7 @@ public class MemberService {
         // 소셜 로그인 서비스 연결 해제
         LoginType loginType = LoginType.of(member.getType());
         LoginStrategy loginStrategy = loginStrategyFactory.getStrategy(loginType);
-        loginStrategy.disconnect(member.getRefreshToken()); // TODO :: 소셜 로그인 후 응답 받은 리프레쉬 토큰을 DB 또는 Redis에서 조회
+        loginStrategy.disconnect(member.getRefreshToken()); // TODO :: 소셜 로그인 후 응답 받은 리프레시 토큰을 DB 또는 Redis에서 조회
 
         // TODO :: 서비스 액세스 토큰 만료 처리
     }

@@ -82,7 +82,7 @@ public class OAuthService {
             return OAuthLoginResponse.of(id, email, refreshToken, loginType.getId());
         }
 
-        // 가입 회원이면 리프레쉬 토큰 갱신
+        // 가입 회원이면 리프레시 토큰 갱신
         Member member = optionalMember.get();
         member.setRefreshToken(refreshToken);
 

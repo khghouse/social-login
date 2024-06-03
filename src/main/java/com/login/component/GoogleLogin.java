@@ -53,6 +53,7 @@ public class GoogleLogin implements LoginStrategy<GoogleLoginToken, GoogleProfil
                 .queryParam("client_id", clientId)
                 .queryParam("scope", scope)
                 .queryParam("redirect_uri", callbackUrl)
+                .queryParam("access_type", "offline") // authorization_code 인증 후, 리프레시 토큰도 발급 받기 위한 설정
                 .build();
 
         return uriComponents.toUriString();
