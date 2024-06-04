@@ -3,6 +3,7 @@ package com.login.component;
 import com.login.enumeration.LoginType;
 import com.login.response.GoogleLoginToken;
 import com.login.response.GoogleProfileResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,9 @@ import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponents;
 import org.springframework.web.util.UriComponentsBuilder;
+import reactor.core.publisher.Mono;
 
+@Slf4j
 @Component
 public class GoogleLogin implements LoginStrategy<GoogleLoginToken, GoogleProfileResponse> {
 
@@ -36,6 +39,9 @@ public class GoogleLogin implements LoginStrategy<GoogleLoginToken, GoogleProfil
 
     @Value("${login.google.url.scope}")
     private String scope;
+
+    @Value("${login.google.url.disconnect}")
+    private String disconnectUrl;
 
     @Override
     public LoginType getLoginType() {
@@ -83,16 +89,51 @@ public class GoogleLogin implements LoginStrategy<GoogleLoginToken, GoogleProfil
                 }).block();
     }
 
+    /**
+     * 구글 로그인 인증 by refreshToken
+     */
     @Override
     public GoogleLoginToken authentication(String refreshToken) {
-        return null;
+        String GRANT_TYPE = "refresh_token";
+        return WebClient.create()
+                .post()
+                .uri(authenticationUrl)
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .body(BodyInserters.fromFormData("grant_type", GRANT_TYPE)
+                        .with("client_id", clientId)
+                        .with("client_secret", clientSecret)
+                        .with("refresh_token", refreshToken))
+                .exchangeToMono(response -> {
+                    if (response.statusCode().equals(HttpStatus.OK)) {
+                        return response.bodyToMono(GoogleLoginToken.class);
+                    } else {
+                        throw new RuntimeException(String.format("[%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    }
+                }).block();
     }
 
+    /**
+     * 구글 로그인 연결 해제
+     */
     @Override
     public void disconnect(String refreshToken) {
+        GoogleLoginToken googleLoginToken = authentication(refreshToken);
 
+        WebClient.create()
+                .post()
+                .uri(disconnectUrl + "?token=" + googleLoginToken.getAccess_token())
+                .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .exchangeToMono(response -> {
+                    if (!response.statusCode().equals(HttpStatus.OK)) {
+                        log.error(String.format("[구글 로그인 연결 해제][%s] 정상 처리되지 못했습니다.", response.statusCode()));
+                    }
+                    return Mono.just(response);
+                }).subscribe();
     }
 
+    /**
+     * 구글 프로필 조회
+     */
     @Override
     public GoogleProfileResponse profile(String accessToken) {
         return WebClient.create()

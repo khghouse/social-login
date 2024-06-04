@@ -34,6 +34,7 @@ login:
       callback: http://localhost:8080/auth/login/google/callback
       scope: https://www.googleapis.com/auth/userinfo.email
       profile: https://www.googleapis.com/oauth2/v1/userinfo
+      disconnect: https://oauth2.googleapis.com/revoke
 
 --- # 프로파일을 구분
 
